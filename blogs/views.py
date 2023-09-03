@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
-from .models import Post
-from .forms import PostForm
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Post, Comment
+from .forms import PostForm, CommentForm
 
 # Create your views here.
 
@@ -11,14 +11,25 @@ def index(request):
 
 
 def view_post(request, post_id):
-    post = Post.objects.get(id=post_id)
-    return render(request, 'blogs/view_post.html', {'post': post})
+    post = get_object_or_404(Post, id=post_id)
+    comments = post.comments.all()
+    form = CommentForm()
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.save()
+            return redirect('view_post', post_id=post.id)
+
+    return render(request, 'blogs/view_post.html', {'post': post, 'comments': comments, 'form': form, })
 
 
 def create_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
-        if form.isvalid():
+        if form.is_valid():
             form.save()
             return redirect('index')
     else:

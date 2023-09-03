@@ -1,3 +1,17 @@
 <h1>{{ post.title }}</h1>
 <p>{{ post.created_at }}</p>
 <p>{{ post.content }}</p>
+
+<h2>Comments</h2>
+{% for comment in comments %}
+<div>
+  <p>{{ comment.content }}</p>
+  <small> Posted on: {{ comment.created_at }}</small>
+</div>
+{% endfor %}
+
+<h2>Add a comment</h2>
+<form method="post">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit">Submit</button>
+</form>
